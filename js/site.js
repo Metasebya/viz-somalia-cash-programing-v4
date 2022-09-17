@@ -50,6 +50,7 @@ var config = {
     whatFieldName: "#sector",
     whereFieldName: "#adm2+code",
     sumField: "#beneficiary",
+	sumField2: "#value+amount",
     geo: "data/Somalia_District_Polygon.json",
     joinAttribute: "DIS_CODE",
     nameAttribute: "DIST_NAME",
@@ -62,6 +63,7 @@ var config = {
     restrictionField: "#indicator+restriction",
     ruralField: "#loc+type",
     transferValue: "#value+total"
+	transferAmount: "value+amount"
 };
 var globalMonthlyData = {},
     cashData,
@@ -611,8 +613,12 @@ function generate3WComponent() {
         return d[config.ruralField];
     });
 
-    var whoRegionalGroup = whoRegionalDim.group().reduceSum(function (d) {
+    /*var whoRegionalGroup = whoRegionalDim.group().reduceSum(function (d) {
         return d[config.sumField]
+    });*/
+	
+	var whoRegionalGroup = whoRegionalDim.group().reduceSum(function (d) {
+        return d[config.sumField2]
     });
 
     var groupMecha = dimMecha.group().reduceSum(function (d) {
@@ -650,6 +656,7 @@ function generate3WComponent() {
         function (p, v) {
             p.peopleAssisted += +v[config.sumField];
             p.amountTransfered += +v[config.transferValue];
+			
             if (v[config.whoFieldName] in p.orgas)
                 p.orgas[v[config.whoFieldName]]++;
             else {
@@ -700,6 +707,11 @@ function generate3WComponent() {
         var val = (config.sumField=='#beneficiary') ? d.amountTransfered : 0 ;
         return val;
     }
+	
+	var amountT = function(d){
+        var val = (config.sumField2=='#value+amount') ? d.transferAmount : 0 ;
+        return val;
+    }
 
     var peopleA = function(d){
         return d.peopleAssisted;
@@ -713,6 +725,10 @@ function generate3WComponent() {
     amountTransfered.group(gp)
         .valueAccessor(amount)
         .formatNumber(formatMoney);
+		
+	amountofTransfer.group(gp)
+        .valueAccessor(amountT)
+        .formatNumber(formatMoney);	
 
     peopleAssisted.group(gp)
         .valueAccessor(peopleA)
@@ -1019,6 +1035,7 @@ function generateKeyFigures (mm, yy) {
 
 $('#update').on('click', function(){
     config.sumField = '#beneficiary';
+	config.sumField2 = '#value+amount';
     config.color = globalColor;
     config.mapColorRange = mapCols;
     config.colorScale = colorScaler;
