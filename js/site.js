@@ -576,6 +576,7 @@ function generate3WComponent() {
     filterRuralUrban = dc.pieChart('#filterArea');
     var numOfPartners = dc.numberDisplay('#numberOfOrgs');
     var amountTransfered = dc.numberDisplay('#amountTransfered');
+	var amountOfTransfer = dc.numberDisplay('#amountOfTransfer');
     var peopleAssisted = dc.numberDisplay('#peopleAssisted');
 
     // var cashData = crossfilter(data);
@@ -656,6 +657,7 @@ function generate3WComponent() {
         function (p, v) {
             p.peopleAssisted += +v[config.sumField];
             p.amountTransfered += +v[config.transferValue];
+			p.amountOfTransfer += +v[config.sumField2];
 			
             if (v[config.whoFieldName] in p.orgas)
                 p.orgas[v[config.whoFieldName]]++;
@@ -669,7 +671,8 @@ function generate3WComponent() {
         function (p, v) {
             p.peopleAssisted -= +v[config.sumField];
             p.amountTransfered -= +v[config.transferValue];
-            
+            p.amountOfTransfer += +v[config.sumField2];
+			
             p.orgas[v[config.whoFieldName]]--;
             if (p.orgas[v[config.whoFieldName]] == 0) {
                 delete p.orgas[v[config.whoFieldName]];
@@ -678,6 +681,7 @@ function generate3WComponent() {
 
             if (p.peopleAssisted < 0) p.peopleAssisted = 0;
             if (p.amountTransfered < 0) p.amountTransfered = 0;
+			if (p.amountOfTransfer < 0) p.amountOfTransfer = 0;
 
             return p;
         },
@@ -685,6 +689,7 @@ function generate3WComponent() {
             return {
                 peopleAssisted: 0,
                 amountTransfered: 0,
+				amountOfTransfer: 0,
                 numOrgs: 0,
                 orgas: []
             };
@@ -709,7 +714,7 @@ function generate3WComponent() {
     }
 	
 	var amountT = function(d){
-        var val = (config.sumField2=='#value+amount') ? d.transferAmount : 0 ;
+        var val = (config.sumField2=='#value+amount') ? d.amountOfTransfer : 0 ;
         return val;
     }
 
@@ -726,7 +731,7 @@ function generate3WComponent() {
         .valueAccessor(amount)
         .formatNumber(formatMoney);
 		
-	amountofTransfer.group(gp)
+	amountOfTransfer.group(gp)
         .valueAccessor(amountT)
         .formatNumber(formatMoney);	
 
